@@ -1,9 +1,10 @@
 #! /bin/sh
-
 set -eu
 set -o pipefail
-
 source ./env.sh
+
+# R2-specific AWS configuration
+aws_args="--endpoint-url=$S3_ENDPOINT"
 
 echo "Creating backup of $POSTGRES_DATABASE database..."
 pg_dump --format=custom \
@@ -29,17 +30,15 @@ else
   s3_uri="$s3_uri_base"
 fi
 
-echo "Uploading backup to $S3_BUCKET..."
+echo "Uploading backup to $S3_BUCKET using R2..."
 aws $aws_args s3 cp "$local_file" "$s3_uri"
 rm "$local_file"
-
 echo "Backup complete."
 
 if [ -n "$BACKUP_KEEP_DAYS" ]; then
   sec=$((86400*BACKUP_KEEP_DAYS))
   date_from_remove=$(date -d "@$(($(date +%s) - sec))" +%Y-%m-%d)
   backups_query="Contents[?LastModified<='${date_from_remove} 00:00:00'].{Key: Key}"
-
   echo "Removing old backups from $S3_BUCKET..."
   aws $aws_args s3api list-objects \
     --bucket "${S3_BUCKET}" \
