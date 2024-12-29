@@ -38,9 +38,11 @@ jobs:
           context: .
           push: true
           tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/postgres-backup-s3:${{ matrix.postgres }}
             ${{ secrets.DOCKERHUB_USERNAME }}/postgres-backup-s3:latest
           build-args: |
             ALPINE_VERSION=${{ matrix.alpine }}
+            POSTGRES_VERSION=${{ matrix.postgres }}
           platforms: |
             linux/amd64
             linux/arm64
