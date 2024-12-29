@@ -40,7 +40,6 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/postgres-backup-s3:latest
           build-args: |
-            POSTGRES_VERSION=${{ matrix.postgres }}
             ALPINE_VERSION=${{ matrix.alpine }}
           platforms: |
             linux/amd64
